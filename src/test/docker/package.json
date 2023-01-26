@@ -1,0 +1,12 @@
+{
+  "name": "websocket-echo-server",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Websocket Example",
+  "main": "index.js",
+  "author": "Steve Todorov",
+  "license": "MIT",
+  "dependencies": {
+    "ws": "^8.11.0"
+  }
+}

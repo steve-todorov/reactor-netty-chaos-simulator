@@ -1,0 +1,15 @@
+version: "3.9"
+services:
+  emitter:
+    image: websocket-server:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - 8090
+    stop_grace_period: 2s
+
+  toxyproxy:
+    image: ghcr.io/shopify/toxiproxy:2.5.0
+    ports:
+      - 8474
