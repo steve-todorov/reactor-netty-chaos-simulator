@@ -42,4 +42,4 @@ jobs:
 
       # Runs a set of commands using the runners shell
       - name: Build and run tests
-        run: gradle tests --info
+        run: gradle test --info
