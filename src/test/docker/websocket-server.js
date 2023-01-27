@@ -35,7 +35,7 @@ const autoEmit = setInterval(function() {
     server.clients.forEach(function(client) {
         client.send(msg);
     });
-}, 1000);
+}, 500);
 
 server.on('close', function close() {
     clearInterval(interval);
