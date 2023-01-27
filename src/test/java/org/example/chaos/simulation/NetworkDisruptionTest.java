@@ -2,6 +2,8 @@ package org.example.chaos.simulation;
 
 import com.github.dockerjava.api.model.ContainerNetwork;
 import com.github.dockerjava.api.model.NetworkSettings;
+import io.netty.channel.ChannelOption;
+import io.netty.channel.epoll.EpollChannelOption;
 import org.junit.ClassRule;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -143,7 +145,19 @@ public class NetworkDisruptionTest
             .subscribe();
 
         // 1. Establish a connection
-        HttpClient client = HttpClient.create();
+        HttpClient client = HttpClient.create()
+                                      .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 5000)
+                                      .option(ChannelOption.SO_KEEPALIVE, true)
+                                      // TCP_KEEPIDLE - The maximum time (resolution: seconds) that this connection stays idle before TCP starts
+                                      // sending keepalive probes, if SO_KEEPALIVE has been set. The maximum time is implementation dependent,
+                                      // but the default is typically two hours.
+                                      .option(EpollChannelOption.TCP_KEEPIDLE, 7)
+                                      // TCP_KEEPINTVL (Epoll)/TCP_KEEPINTERVAL (NIO) - The time (resolution: seconds) between individual keepalive probes.
+                                      .option(EpollChannelOption.TCP_KEEPINTVL, 3)
+                                      // TCP_KEEPCNT (Epoll)/TCP_KEEPCOUNT (NIO) - The maximum number of keepalive probes TCP should send before
+                                      // dropping the connection.
+                                      .option(EpollChannelOption.TCP_KEEPCNT, 2);
+
 
         StepVerifier.create(client.websocket(WebsocketClientSpec.builder().handlePing(true).build())
                                   .uri("ws://" + emitterIP + ":" + emitterPort)
@@ -154,7 +168,7 @@ public class NetworkDisruptionTest
                     .recordWith(ArrayList::new)
                     .thenConsumeWhile(o -> true)
                     .expectError()
-                    .verify(Duration.ofSeconds(10));
+                    .verify(Duration.ofSeconds(120));
 
     }
 
